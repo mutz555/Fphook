@@ -5,6 +5,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := FingerprintBypassModule
 LOCAL_SRC_FILES := main.cpp hook.cpp config.cpp module.cpp
 LOCAL_STATIC_LIBRARIES := libdobby
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 LOCAL_LDLIBS := -llog
 LOCAL_CFLAGS := -std=c++20 -Wall -Wextra -fno-rtti -fvisibility=hidden
 LOCAL_CPPFLAGS := -std=c++20
