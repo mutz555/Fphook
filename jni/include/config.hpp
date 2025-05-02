@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <fstream>
 #include <filesystem>
-#include "logging.hpp"
+#include "Logger.hpp"
 
 enum class BypassMode {
     NONE,           // No bypass, only logging
