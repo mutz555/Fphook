@@ -1,42 +1,45 @@
-#include "hook.hpp"
-#include "zygisk.hpp"
+#pragma once
 
-void HookManager::addJavaHook(const std::shared_ptr<JavaMethodHook>& hook) {
-    javaHooks.push_back(hook);
-}
+#include <jni.h>
+#include <string>
+#include <vector>
+#include <unordered_map>
+#include <memory>
+#include <dobby.h>
+#include "Logger.hpp"
+#include "lsplant.hpp"
 
-void HookManager::applyJavaHooks(JNIEnv* env) {
-    for (const auto& hook : javaHooks) {
-        hook->apply(env);
+class JavaMethodHook {
+public:
+    JavaMethodHook(const std::string& className,
+                   const std::string& methodName,
+                   const std::string& methodSignature,
+                   void* replacement,
+                   void** original)
+        : className(className), methodName(methodName),
+          methodSignature(methodSignature),
+          replacement(replacement), original(original) {}
+
+    bool apply(JNIEnv* env);
+
+private:
+    std::string className;
+    std::string methodName;
+    std::string methodSignature;
+    void* replacement;
+    void** original;
+};
+
+class HookManager {
+public:
+    static HookManager& getInstance() {
+        static HookManager instance;
+        return instance;
     }
-}
 
-bool JavaMethodHook::apply(JNIEnv* env) {
-    jclass clazz = env->FindClass(className.c_str());
-    if (!clazz) {
-        Logger::error("Class not found: " + className);
-        return false;
-    }
+    void addJavaHook(const std::shared_ptr<JavaMethodHook>& hook);
+    void applyJavaHooks(JNIEnv* env);
 
-    jmethodID method = env->GetMethodID(clazz, methodName.c_str(), methodSignature.c_str());
-    if (!method) {
-        Logger::error("Method not found: " + methodName + " " + methodSignature);
-        return false;
-    }
-
-    Logger::info("Applying hook to " + className + "." + methodName);
-
-    int result = lsplant::InitializeInternal(env);
-    if (result != LSPLANT_SUCCESS) {
-        Logger::error("lsplant initialization failed");
-        return false;
-    }
-
-    if (DobbyHook((void*)method, replacement, original) != RS_SUCCESS) {
-        Logger::error("Failed to hook method: " + methodName);
-        return false;
-    }
-
-    Logger::info("Hook applied: " + className + "." + methodName);
-    return true;
-}
+private:
+    std::vector<std::shared_ptr<JavaMethodHook>> javaHooks;
+};
