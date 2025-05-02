@@ -1,57 +1,42 @@
 #include "hook.hpp"
-#include <string>
-#include <vector>
-#include <dobby.h>
-#include <thread>
-#include <chrono>
+#include "zygisk.hpp"
 
-JavaMethodHook::JavaMethodHook(const std::string& className,
-                               const std::string& methodName,
-                               const std::string& methodSig,
-                               std::function<jobject(JNIEnv*, jclass, jobject, jobjectArray)> replacement,
-                               std::function<jobject(JNIEnv*, jclass, jobject, jobjectArray)> original)
-  : cls(className), mth(methodName), sig(methodSig), repl(replacement), orig(original) {}
+void HookManager::addJavaHook(const std::shared_ptr<JavaMethodHook>& hook) {
+    javaHooks.push_back(hook);
+}
 
-bool JavaMethodHook::install(JNIEnv* env) {
-    jclass target = env->FindClass(cls.c_str());
-    if (!target) {
-        Logger::error("Class not found: " + cls);
-        return false;
+void HookManager::applyJavaHooks(JNIEnv* env) {
+    for (const auto& hook : javaHooks) {
+        hook->apply(env);
     }
-    jmethodID mid = env->GetMethodID(target, mth.c_str(), sig.c_str());
-    if (!mid) {
-        Logger::error("MethodID not found: " + mth + " " + sig);
+}
+
+bool JavaMethodHook::apply(JNIEnv* env) {
+    jclass clazz = env->FindClass(className.c_str());
+    if (!clazz) {
+        Logger::error("Class not found: " + className);
         return false;
     }
 
-    if (lsplant::InitializeInternal(env) != LSPLANT_SUCCESS) {
+    jmethodID method = env->GetMethodID(clazz, methodName.c_str(), methodSignature.c_str());
+    if (!method) {
+        Logger::error("Method not found: " + methodName + " " + methodSignature);
+        return false;
+    }
+
+    Logger::info("Applying hook to " + className + "." + methodName);
+
+    int result = lsplant::InitializeInternal(env);
+    if (result != LSPLANT_SUCCESS) {
         Logger::error("lsplant initialization failed");
         return false;
     }
 
-    if (DobbyHook((void*)mid, (void*)repl.target_type().name(), (void**)&orig) != RS_SUCCESS) {
-        Logger::error("Failed to hook " + cls + "." + mth);
+    if (DobbyHook((void*)method, replacement, original) != RS_SUCCESS) {
+        Logger::error("Failed to hook method: " + methodName);
         return false;
     }
 
-    Logger::info("Hooked " + cls + "." + mth);
-    return true;
-}
-
-HookManager& HookManager::getInstance() {
-    static HookManager instance;
-    return instance;
-}
-
-void HookManager::addJavaHook(std::unique_ptr<JavaMethodHook> hook) {
-    javaHooks.emplace_back(std::move(hook));
-}
-
-bool HookManager::initialize(JNIEnv* env) {
-    for (auto& hook : javaHooks) {
-        if (!hook->install(env)) {
-            return false;
-        }
-    }
+    Logger::info("Hook applied: " + className + "." + methodName);
     return true;
 }
