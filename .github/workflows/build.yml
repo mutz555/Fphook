@@ -58,7 +58,7 @@ jobs:
         zip -r module.zip module
 
     - name: Upload module artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@main
       with:
         name: zygisk-fingerprint-bypass
         path: module.zip
