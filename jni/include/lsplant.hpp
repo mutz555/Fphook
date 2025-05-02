@@ -1,7 +1,20 @@
-#ifndef LSPLANT_HPP
-#define LSPLANT_HPP
+#pragma once
 
-// Placeholder function, implement sesuai kebutuhanmu
-inline void init_lsplant() {}
+#include <jni.h>
 
-#endif // LSPLANT_HPP
+#define LSPLANT_SUCCESS 0
+#define LSPLANT_FAILURE -1
+
+namespace lsplant {
+
+    // Inisialisasi internal LSPlant, misalnya untuk cache env atau set up
+    int InitializeInternal(JNIEnv* env);
+
+    // Hook Java method dengan LSPlant
+    bool Hook(JNIEnv* env,
+              jclass clazz,
+              const char* methodName,
+              const char* methodSignature,
+              void* replacement,
+              void** original);
+}
