@@ -1,0 +1,93 @@
+{
+  "bypass_mode": "basic",
+  "sensitivity_level": 2,
+  "debug_enabled": true,
+  "log_file": "/data/local/tmp/fpbypass.log",
+  "device_specific": {
+    "infinix_hot40_pro": true,
+    "hyperos_2": true
+  },
+  "methods": {
+    "isHardwareDetected": {
+      "enabled": true
+    },
+    "isHardwareDetectedHyperOS": {
+      "enabled": true
+    },
+    "canAuthenticate": {
+      "enabled": true
+    },
+    "hasEnrolledFingerprints": {
+      "enabled": true
+    },
+    "getAuthenticatorId": {
+      "enabled": true
+    },
+    "authenticate": {
+      "enabled": false,
+      "params": {
+        "delay_ms": 800,
+        "simulate_real_finger": true
+      }
+    }
+  },
+  "hyperos_specific": {
+    "FingerprintServiceStub": true,
+    "FingerprintServiceStubImpl": true,
+    "FingerprintAuthenticator": true
+  },
+  "sensitivity_levels": [
+    {
+      "level": 0,
+      "name": "Minimal",
+      "description": "Minimal interception, hanya fungsi paling dasar"
+    },
+    {
+      "level": 1,
+      "name": "Low",
+      "description": "Intervensi rendah, fungsi dasar dengan beberapa fitur tambahan"
+    },
+    {
+      "level": 2,
+      "name": "Medium",
+      "description": "Keseimbangan antara kompatibilitas dan intervensi (direkomendasikan)"
+    },
+    {
+      "level": 3,
+      "name": "High",
+      "description": "Intervensi agresif, mengganti lebih banyak metode sistem"
+    },
+    {
+      "level": 4,
+      "name": "Maximum",
+      "description": "Intervensi maksimal, mengganti semua fungsi terkait fingerprint"
+    }
+  ],
+  "bypass_modes": [
+    {
+      "name": "No Bypass",
+      "id": "none",
+      "description": "Tidak melakukan bypass, hanya logging"
+    },
+    {
+      "name": "Basic Mode",
+      "id": "basic",
+      "description": "Hanya bypass isHardwareDetected"
+    },
+    {
+      "name": "Full Hardware",
+      "id": "full",
+      "description": "Bypass penuh untuk deteksi hardware"
+    },
+    {
+      "name": "Authentication",
+      "id": "authentication",
+      "description": "Bypass autentikasi fingerprint (Berbahaya)"
+    },
+    {
+      "name": "HyperOS Mode",
+      "id": "hyperos",
+      "description": "Mode khusus untuk HyperOS by mutz"
+    }
+  ]
+}

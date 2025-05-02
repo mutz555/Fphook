@@ -1,0 +1,6 @@
+# Descriptor for Zygisk module
+module:
+  name: Fingerprint Bypass
+  version: "1.0"
+  description: Bypass fingerprint hardware detection on HyperOS 2
+  author: Mutz
