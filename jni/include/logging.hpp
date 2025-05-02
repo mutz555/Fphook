@@ -6,15 +6,24 @@
 #include <filesystem>
 #include <cstdio>
 #include <ctime>
+#include <error.h>
 
 #define LOG_TAG "FpBypass"
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
-#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOGI(...) if (Logger::isDebugEnabled()) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#define LOGE(...) if (Logger::isDebugEnabled()) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 class Logger {
 public:
     static void setLogFile(const std::string& path) {
         logFile = path;
+    }
+
+    static void setDebugEnabled(bool enabled) {
+        debugEnabled = enabled;
+    }
+
+    static bool isDebugEnabled() {
+        return debugEnabled;
     }
 
     static void info(const std::string& message) {
@@ -27,19 +36,9 @@ public:
         writeToFile("ERROR", message);
     }
 
-    static void debug(const std::string& message) {
-        LOGI("[DEBUG] %s", message.c_str());
-        writeToFile("DEBUG", message);
-    }
-
-    static void warn(const std::string& message) {
-        LOGE("[WARN] %s", message.c_str());
-        writeToFile("WARN", message);
-    }
-
 private:
     static void writeToFile(const std::string& level, const std::string& message) {
-        if (logFile.empty()) return;
+        if (!debugEnabled || logFile.empty()) return;
 
         std::filesystem::path path(logFile);
         if (!path.parent_path().empty()) {
@@ -52,18 +51,4 @@ private:
             fprintf(file, "[%s] [%s] %s\n",
                     getCurrentTimeString().c_str(),
                     level.c_str(),
-                    message.c_str());
-            fclose(file);
-        }
-    }
-
-    static std::string getCurrentTimeString() {
-        time_t now = time(nullptr);
-        struct tm* t = localtime(&now);
-        char buf[32];
-        strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", t);
-        return std::string(buf);
-    }
-
-    static inline std::string logFile;
-};
+                    message
