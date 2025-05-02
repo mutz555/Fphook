@@ -10,7 +10,6 @@
 #include <lsplant.hpp>
 #include "logging.hpp"
 #include "config.hpp"
-#include "Logger.hpp"
 
 // Forward declarations
 class JavaMethodHook;
