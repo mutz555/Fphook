@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <memory>
 #include <dobby.h>
-#include "logging.hpp"
+#include "Logger.hpp"
 #include "lsplant.hpp"
 
 class JavaMethodHook {
