@@ -1,41 +1,45 @@
 #pragma once
 
-#include <functional>
 #include <jni.h>
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <memory>
-#include "dobby.h"
+#include <dobby.h>
+#include "Logger.hpp"
 #include "lsplant.hpp"
-#include "logging.hpp"
-#include "config.hpp"
 
 class JavaMethodHook {
 public:
     JavaMethodHook(const std::string& className,
                    const std::string& methodName,
-                   const std::string& methodSig,
-                   std::function<jobject(JNIEnv*, jclass, jobject, jobjectArray)> replacement,
-                   std::function<jobject(JNIEnv*, jclass, jobject, jobjectArray)> original);
+                   const std::string& methodSignature,
+                   void* replacement,
+                   void** original)
+        : className(className), methodName(methodName),
+          methodSignature(methodSignature),
+          replacement(replacement), original(original) {}
 
-    bool install(JNIEnv* env);
+    bool apply(JNIEnv* env);
 
 private:
-    std::string cls;
-    std::string mth;
-    std::string sig;
-    std::function<jobject(JNIEnv*, jclass, jobject, jobjectArray)> repl;
-    std::function<jobject(JNIEnv*, jclass, jobject, jobjectArray)> orig;
+    std::string className;
+    std::string methodName;
+    std::string methodSignature;
+    void* replacement;
+    void** original;
 };
 
 class HookManager {
 public:
-    static HookManager& getInstance();
-    void addJavaHook(std::unique_ptr<JavaMethodHook> hook);
-    bool initialize(JNIEnv* env);
+    static HookManager& getInstance() {
+        static HookManager instance;
+        return instance;
+    }
+
+    void addJavaHook(const std::shared_ptr<JavaMethodHook>& hook);
+    void applyJavaHooks(JNIEnv* env);
 
 private:
-    HookManager() = default;
-    std::vector<std::unique_ptr<JavaMethodHook>> javaHooks;
+    std::vector<std::shared_ptr<JavaMethodHook>> javaHooks;
 };
