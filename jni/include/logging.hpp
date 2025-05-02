@@ -5,6 +5,7 @@
 #include <string>
 #include <filesystem>
 #include <cstdio>
+#include <ctime>
 
 #define LOG_TAG "FpBypass"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
@@ -24,6 +25,16 @@ public:
     static void error(const std::string& message) {
         LOGE("%s", message.c_str());
         writeToFile("ERROR", message);
+    }
+
+    static void debug(const std::string& message) {
+        LOGI("[DEBUG] %s", message.c_str());
+        writeToFile("DEBUG", message);
+    }
+
+    static void warn(const std::string& message) {
+        LOGE("[WARN] %s", message.c_str());
+        writeToFile("WARN", message);
     }
 
 private:
