@@ -1,6 +1,6 @@
 #include "zygisk.hpp"
 #include "module.hpp"
-#include "logging.hpp"
+#include "Logger.hpp"
 
 // Create and register the module
 static fpbypass::FingerprintBypassModule module;
