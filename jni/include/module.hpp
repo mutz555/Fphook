@@ -1,7 +1,7 @@
 #pragma once
 
 #include "zygisk.hpp"
-#include "logging.hpp"
+#include "Logger.hpp"
 #include "hook.hpp"
 #include "config.hpp"
 
